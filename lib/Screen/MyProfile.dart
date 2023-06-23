@@ -7,7 +7,7 @@ import 'package:omega_employee_management/Provider/CategoryProvider.dart';
 import 'package:omega_employee_management/Provider/HomeProvider.dart';
 import 'package:omega_employee_management/Screen/Dashboard.dart';
 import 'package:omega_employee_management/Screen/HomePage.dart';
-import 'package:omega_employee_management/Screen/my_leads.dart';
+import 'package:omega_employee_management/Screen/my_spending.dart';
 import 'package:omega_employee_management/Screen/my_leads_accounts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:omega_employee_management/Helper/ApiBaseHelper.dart';
@@ -538,30 +538,30 @@ class StateProfile extends State<MyProfile> with TickerProviderStateMixin {
         //     : _getDrawerItem(getTranslated(context, 'MANAGE_ADD_LBL')!,
         //         'assets/images/pro_address.svg'),
         //CUR_USERID == "" || CUR_USERID == null ? Container() : _getDivider(),
-        CUR_USERID == "" || CUR_USERID == null
-            ? Container()
-            : _getDrawerItem(getTranslated(context, 'MYWALLET')!,
-                'assets/images/pro_wh.svg'),
+        // CUR_USERID == "" || CUR_USERID == null
+        //     ? Container()
+        //     : _getDrawerItem(getTranslated(context, 'MYWALLET')!,
+        //         'assets/images/pro_wh.svg'),
         // CUR_USERID == "" || CUR_USERID == null
         //     ? Container()
         //     : _getDrawerItem(getTranslated(context, 'MYEARNINGS')!,
         //     'assets/images/pro_th.svg'),
-        CUR_USERID == "" || CUR_USERID == null
-            ? Container()
-            : _getDrawerItem(getTranslated(context, 'MYTRANSACTION')!,
-            'assets/images/pro_th.svg'),
+        // CUR_USERID == "" || CUR_USERID == null
+        //     ? Container()
+        //     : _getDrawerItem(getTranslated(context, 'MYTRANSACTION')!,
+        //     'assets/images/pro_th.svg'),
         // CUR_USERID == "" || CUR_USERID == null ? Container() : _getDivider(),
         // CUR_USERID == "" || CUR_USERID == null
         //     ? Container()
         //     : _getDrawerItem(getTranslated(context, 'MYTRANSACTION')!,
         //         'assets/images/pro_th.svg'),
         // CUR_USERID == "" || CUR_USERID == null ? Container() : _getDivider(),
-        _getDrawerItem(getTranslated(context, 'CHANGE_THEME_LBL')!,
-            'assets/images/pro_theme.svg'),
-        CUR_USERID == "" || CUR_USERID == null
-            ? Container()
-            : _getDrawerItem("Request Training",
-            'assets/images/pro_myorder.svg'),
+        // _getDrawerItem(getTranslated(context, 'CHANGE_THEME_LBL')!,
+        //     'assets/images/pro_theme.svg'),
+        // CUR_USERID == "" || CUR_USERID == null
+        //     ? Container()
+        //     : _getDrawerItem("Request Training",
+        //     'assets/images/pro_myorder.svg'),
         // _getDivider(),
         // _getDrawerItem(getTranslated(context, 'CHANGE_LANGUAGE_LBL')!,
         //     'assets/images/pro_language.svg'),
@@ -597,8 +597,8 @@ class StateProfile extends State<MyProfile> with TickerProviderStateMixin {
         // _getDrawerItem(
         //     getTranslated(context, 'RATE_US')!, 'assets/images/pro_rateus.svg'),
         // _getDivider(),
-        _getDrawerItem(getTranslated(context, 'SHARE_APP')!,
-            'assets/images/pro_share.svg'),
+        // _getDrawerItem(getTranslated(context, 'SHARE_APP')!,
+        //     'assets/images/pro_share.svg'),
         // CUR_USERID == "" || CUR_USERID == null ? Container() : _getDivider(),
         CUR_USERID == "" || CUR_USERID == null
             ? Container()
@@ -652,11 +652,11 @@ class StateProfile extends State<MyProfile> with TickerProviderStateMixin {
                   builder: (context) => TransactionHistory(),
                 ));
           } else if (title == getTranslated(context, 'MY_COMMISSION')) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MyLeadsAccounts(),
-                ));
+            // Navigator.push(
+            //     context,
+            //     MaterialPageRoute(
+            //       builder: (context) => MyLeadsAccounts(),
+            //     ));
           }
           else if (title == getTranslated(context, 'MYWALLET')) {
             Navigator.push(

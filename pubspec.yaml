@@ -54,6 +54,10 @@ dependencies:
   razorpay_flutter: ^1.2.7
 #  flutter_paystack: ^1.0.5
   flutter_html_to_pdf: ^0.7.0
+  carousel_slider: ^4.2.1
+  image_cropper: ^4.0.1
+  image_picker_gallery_camera: ^0.2.2
+  geolocator: ^9.0.2
   permission_handler: ^8.2.2
   in_app_review: ^2.0.2
   firebase_dynamic_links:

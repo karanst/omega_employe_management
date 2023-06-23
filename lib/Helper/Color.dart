@@ -17,9 +17,9 @@ extension colors on ColorScheme {
     },
   );
 
-  static const Color primary = Color(0xff0C1544);
+  static const Color primary = Color(0xff00b3f8);
   //Color(0xff9B2243);
-  static const Color secondary = Color(0xffDD5F2C);
+  static const Color secondary = Color(0xfffb852d);
 
   Color get btnColor =>
       this.brightness == Brightness.dark ? whiteTemp : primary;

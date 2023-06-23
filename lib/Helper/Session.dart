@@ -40,14 +40,15 @@ Future<bool> isNetworkAvailable() async {
 
 back() {
   return BoxDecoration(
-      image: new DecorationImage(
-      image: new AssetImage("assets/images/back.png"),
-        fit: BoxFit.fill),
-    // gradient: LinearGradient(
-    //     begin: Alignment.topLeft,
-    //     end: Alignment.bottomRight,
-    //     colors: [Colors.white, Colors.white],
-    //     stops: [0, 1]),
+    color: colors.black54,
+      // image: new DecorationImage(
+      // image: new AssetImage("assets/images/doodle.png"),
+      //   fit: BoxFit.fill),
+    gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [colors.primary, colors.secondary],
+        stops: [0, 1]),
   );
 }
 

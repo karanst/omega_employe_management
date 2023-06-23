@@ -13,7 +13,7 @@ import 'package:omega_employee_management/Screen/Login.dart';
 import 'package:omega_employee_management/Screen/MyProfile.dart';
 import 'package:omega_employee_management/Screen/Product_Detail.dart';
 import 'package:omega_employee_management/Screen/SendOtp.dart';
-import 'package:omega_employee_management/Screen/my_leads.dart';
+import 'package:omega_employee_management/Screen/my_spending.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -197,7 +197,7 @@ class _HomePageState extends State<Dashboard> with TickerProviderStateMixin {
           controller: _tabController,
           children: [
             HomePage(),
-            MyLeads(),
+            UserExpensesScreen(),
             // AllCategory(),
             // Sale(),
             // Cart(
@@ -314,7 +314,7 @@ class _HomePageState extends State<Dashboard> with TickerProviderStateMixin {
       //     },
       //   ),
       // ],
-      backgroundColor: Theme.of(context).colorScheme.white,
+      backgroundColor: colors.black54,
     );
   }
 

@@ -363,7 +363,7 @@ class StateItem extends State<ProductDetail> with TickerProviderStateMixin {
                       FadeInImage(
                         image: CachedNetworkImageProvider(sliderList[index]!),
                         placeholder: AssetImage(
-                          "assets/images/splash.png",
+                          "assets/images/splash1.png",
                         ),
                         height: height,
                         width: double.maxFinite,

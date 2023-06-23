@@ -7,7 +7,7 @@ final Uri getCatApi = Uri.parse(baseUrl + 'get_categories');
 final Uri getSectionApi = Uri.parse(baseUrl + 'get_sections');
 final Uri getSettingApi = Uri.parse(baseUrl + 'get_settings');
 final Uri getSubcatApi =
-    Uri.parse(baseUrl + 'get_subcategories_by_category_id');
+Uri.parse(baseUrl + 'get_subcategories_by_category_id');
 final Uri getProductApi = Uri.parse(baseUrl + 'get_products');
 final Uri getSubCatBySellerId = Uri.parse(baseUrl + 'sub_cat');
 final Uri manageCartApi = Uri.parse(baseUrl + 'manage_cart');
@@ -25,6 +25,11 @@ final Uri withdrawRequestApi = Uri.parse(baseUrl + 'withdrawl_request');
 final Uri transactionsListApi = Uri.parse(baseUrl + 'transactions');
 final Uri requestTrainingApi = Uri.parse(baseUrl + 'tranning_request');
 final Uri referralCommissionApi = Uri.parse(baseUrl + 'user_commission');
+final Uri addExpenseApi = Uri.parse(baseUrl + 'addspent');
+final Uri getUserExpensesApi = Uri.parse(baseUrl + 'get_user_spent');
+final Uri getUserCheckStatusApi = Uri.parse(baseUrl + 'get_user_status');
+final Uri checkInNowApi = Uri.parse(baseUrl + 'checkinNow');
+final Uri checkOutNowApi = Uri.parse(baseUrl + 'checkoutNow');
 ///NEW APIS////////////
 
 final Uri setFavoriteApi = Uri.parse(baseUrl + 'add_to_favorites');
@@ -68,7 +73,7 @@ final Uri getMsgApi = Uri.parse(baseUrl + 'get_messages');
 final Uri setBankProofApi = Uri.parse(baseUrl + 'send_bank_transfer_proof');
 final Uri checkDeliverableApi = Uri.parse(baseUrl + "is_product_delivarable");
 final Uri checkCartDelApi =
-    Uri.parse(baseUrl + 'check_cart_products_delivarable');
+Uri.parse(baseUrl + 'check_cart_products_delivarable');
 
 final String ISFIRSTTIME = 'isfirst$appName';
 final String HISTORYLIST = '$appName+historyList';
@@ -316,6 +321,17 @@ const String ATTACHMENTS = 'attachments';
 const String ATTACHMENT = 'attachment';
 const String BANK_STATUS = 'banktransfer_status';
 
+
+
+const String UserId = 'user_id';
+
+
+
+
+
+var currentlocation_Global;
+var longitude_Global;
+var lattitudee_Global;
 String ISDARK = "";
 final String PAYPAL_RESPONSE_URL = "$baseUrl" + "app_payment_status";
 final String FLUTTERWAVE_RES_URL = baseUrl + "flutterwave-payment-response";

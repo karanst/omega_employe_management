@@ -4,6 +4,7 @@ import 'package:omega_employee_management/Provider/SettingProvider.dart';
 import 'package:omega_employee_management/Screen/Intro_Slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:omega_employee_management/Screen/Login.dart';
 import 'package:provider/provider.dart';
 
 import '../Helper/Color.dart';
@@ -26,7 +27,6 @@ class _SplashScreen extends State<Splash> {
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
     ));
-
     super.initState();
     startTime();
   }
@@ -38,21 +38,25 @@ class _SplashScreen extends State<Splash> {
 
     //  SystemChrome.setEnabledSystemUIOverlays([]);
     return Scaffold(
-      backgroundColor: colors.whiteTemp,
+      backgroundColor: colors.black54,
       //key: _scaffoldKey,
       // bottomNavigationBar:Image.asset(
-      //   'assets/images/splash.png',
+      //   'assets/images/splash1.png',
       // ),
       body: Container(
-        // color: colors.primary,
-        decoration: BoxDecoration(
-          color: colors.whiteTemp,
-          image: DecorationImage(
-              image: AssetImage("assets/images/splash.png"),
-              // fit: BoxFit.cover
-          ),
-        ),
-      )
+          child: Center(
+              child: Image.asset('assets/images/splash.png')))
+
+      // Container(
+      //   color: colors.black54,
+      //   decoration: BoxDecoration(
+      //     color: colors.whiteTemp,
+      //     image: DecorationImage(
+      //         image: AssetImage("assets/images/splash.png"),
+      //         // fit: BoxFit.cover
+      //     ),
+      //   ),
+      // )
     );
   }
 
@@ -72,7 +76,7 @@ class _SplashScreen extends State<Splash> {
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => IntroSlider(),
+            builder: (context) => LoginPage(),
           )
       );
     }

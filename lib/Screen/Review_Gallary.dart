@@ -36,7 +36,7 @@ class _ReviewImageState extends State<ReviewGallary> {
                   imageErrorBuilder: (context, error, stackTrace) =>
                       erroWidget(double.maxFinite),
                   placeholder: AssetImage(
-                    "assets/images/splash.png",
+                    "assets/images/splash1.png",
                   ),
                   fit: BoxFit.cover,
                 ),
