@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:intl/intl.dart';
+import 'package:omega_employee_management/Model/withdrawl_request_list_model.dart';
 import 'package:omega_employee_management/Provider/SettingProvider.dart';
 import 'package:omega_employee_management/Provider/UserProvider.dart';
 import 'package:omega_employee_management/Screen/PaypalWebviewActivity.dart';
@@ -90,6 +92,39 @@ class StateWallet extends State<MyWallet> with TickerProviderStateMixin {
     'Current'
   ];
   var accTypeValue;
+  List<WithdrawlList> withdrawlList = [];
+
+  withdrawlRequestList() async{
+    var headers = {
+      // 'Token': jwtToken.toString(),
+      // 'Authorisedkey': authKey.toString(),
+      'Cookie': 'ci_session=aa83f4f9d3335df625437992bb79565d0973f564'
+    };
+    var request = http.MultipartRequest('POST', Uri.parse(withdrawlRequestsListApi.toString()));
+    request.fields.addAll({
+      USER_ID: '$CUR_USERID',
+    });
+
+    print("this is refer request ${request.fields.toString()}");
+    request.headers.addAll(headers);
+
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      String str = await response.stream.bytesToString();
+      var result = json.decode(str);
+      var finalResponse = WithdrawlRequestListModel.fromJson(result);
+      withdrawlList = finalResponse.data!;
+
+      print("this is per day expenses data ${withdrawlList.length}");
+      // setState(() {
+      // animalList = finalResponse.data!;
+      // });
+      // print("this is operator list ----->>>> ${operatorList[0].name}");
+    }
+    else {
+      print(response.reasonPhrase);
+    }
+  }
 
   @override
   void initState() {
@@ -106,6 +141,8 @@ class StateWallet extends State<MyWallet> with TickerProviderStateMixin {
         getTranslated(context, 'PAYTM_LBL'),
       ];
       _getpaymentMethod();
+      withdrawlRequestList();
+
     });
 
     controller.addListener(_scrollListener);
@@ -137,7 +174,7 @@ class StateWallet extends State<MyWallet> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: getAppBar(getTranslated(context, 'MYWALLET')!, context),
+        appBar: getAppBar(getTranslated(context, 'MY_ACCOUNTS')!, context),
         body: _isNetworkAvail
             ? _isLoading
                 ? shimmer(context)
@@ -182,21 +219,21 @@ class StateWallet extends State<MyWallet> with TickerProviderStateMixin {
         var parameter = {
           USER_ID: CUR_USERID,
           AMOUNT: amountController.text.toString(),
-          'ac_no':accountNoController.text.toString(),
-          'bank_name': bankNameController.text.toString(),
-          'ifsc_code': ifscController.text.toString(),
-          'account_type': accTypeValue.toString(),
-          'ac_holder_name':accountHolderController.text.toString()
+          // 'ac_no':accountNoController.text.toString(),
+          // 'bank_name': bankNameController.text.toString(),
+          // 'ifsc_code': ifscController.text.toString(),
+          // 'account_type': accTypeValue.toString(),
+          // 'ac_holder_name':accountHolderController.text.toString()
 //upi_id:dhf@sbi.com
         };
         var paraUpi  = {
           USER_ID: CUR_USERID,
           AMOUNT: amountController.text.toString(),
-          'upi_id': upiController.text.toString()
+          // 'upi_id': upiController.text.toString()
         };
 
         Response response =
-            await post(withdrawRequestApi, body:isUpi ? parameter : paraUpi, headers: headers)
+            await post(withdrawRequestApi, body: parameter , headers: headers)
                 .timeout(Duration(seconds: timeOut));
         print("this is response $parameter $paraUpi");
 
@@ -205,12 +242,9 @@ class StateWallet extends State<MyWallet> with TickerProviderStateMixin {
         // bool error = getdata["error"];
         String msg = getdata["message"];
         Fluttertoast.showToast(msg: msg);
-        upiController.clear();
+
         amountController.clear();
-        bankNameController.clear();
-        accountHolderController.clear();
-        accountNoController.clear();
-        ifscController.clear();
+
         // if (!error) {
         //   // CUR_BALANCE = double.parse(getdata["new_balance"]).toStringAsFixed(2);
         //   UserProvider userProvider =
@@ -685,7 +719,7 @@ class StateWallet extends State<MyWallet> with TickerProviderStateMixin {
                                 " : " +
                                 CUR_CURRENCY! +
                                 " " +
-                                tranList[index].amt!,
+                                withdrawlList[index].amount.toString(),
                             style: TextStyle(
                                 color: Theme.of(context).colorScheme.fontColor,
                                 fontWeight: FontWeight.bold),
@@ -700,7 +734,7 @@ class StateWallet extends State<MyWallet> with TickerProviderStateMixin {
                       children: <Widget>[
                         Text(getTranslated(context, 'ID_LBL')! +
                             " : " +
-                            tranList[index].id!),
+                            withdrawlList[index].id!),
                         Spacer(),
                         Container(
                           margin: EdgeInsets.only(left: 8),
@@ -711,18 +745,18 @@ class StateWallet extends State<MyWallet> with TickerProviderStateMixin {
                               borderRadius: new BorderRadius.all(
                                   const Radius.circular(4.0))),
                           child: Text(
-                            tranList[index].type!,
+                            withdrawlList[index].status!,
                             style: TextStyle(
                                 color: Theme.of(context).colorScheme.white),
                           ),
                         )
                       ],
                     ),
-                    tranList[index].msg != null &&
-                            tranList[index].msg!.isNotEmpty
+                    withdrawlList[index].remarks != null &&
+                            withdrawlList[index].remarks!.isNotEmpty
                         ? Text(getTranslated(context, 'MSG')! +
                             " : " +
-                            tranList[index].msg!)
+                            withdrawlList[index].remarks!)
                         : Container(),
                   ]))),
     );
@@ -999,6 +1033,66 @@ class StateWallet extends State<MyWallet> with TickerProviderStateMixin {
         });
     }
   }
+  Widget withdrawlRequestListWidget() {
+    return withdrawlList.isNotEmpty ?
+    Padding(
+      padding: const EdgeInsets.only(left: 10.0, right: 10),
+      child: ListView.builder(
+        shrinkWrap: true,
+          itemCount: withdrawlList.length,
+          itemBuilder: (context, index){
+            return Padding(
+              padding: const EdgeInsets.only(top: 20.0),
+              child: Container(
+                padding: EdgeInsets.only(right: 10, top: 10),
+                width: MediaQuery.of(context).size.width,
+                //height: 220,
+                decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.white,
+                    border: Border.all(color: colors.primary),
+                    borderRadius: BorderRadius.circular(20)
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                        DateFormat('dd MMM yyyy').format(DateTime.parse(withdrawlList[index].updatedAt.toString())).toString(),
+                        style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600,  color: colors.primary) ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 10.0, bottom: 10, left: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('₹ ${withdrawlList[index].amount.toString()}',
+                              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600,  color: colors.primary) ),
+                          Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                color: withdrawlList[index].status.toString() == "0" ?
+                                Colors.red
+                                    : Colors.green
+                            ),
+                            child: Text("Pending", style: TextStyle(
+                                color: colors.whiteTemp,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14
+                            ),),
+                          )
+                        ],
+                      ),
+                    ),
+
+                  ],
+                ),
+              ),
+            );
+          }),
+    )
+        : Center(
+      child: Text("No data found!", style: TextStyle(color: Theme.of(context).colorScheme.fontColor),),
+    );
+  }
 
   showContent() {
     return RefreshIndicator(
@@ -1007,11 +1101,16 @@ class StateWallet extends State<MyWallet> with TickerProviderStateMixin {
         onRefresh: _refresh,
         child: SingleChildScrollView(
           controller: controller,
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
+          child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
             Padding(
-              padding: const EdgeInsets.only(top: 5.0),
+              padding: const EdgeInsets.all( 12.0),
               child: Card(
-                elevation: 0,
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(18.0),
                   child: Column(
@@ -1025,7 +1124,7 @@ class StateWallet extends State<MyWallet> with TickerProviderStateMixin {
                             color: Theme.of(context).colorScheme.fontColor,
                           ),
                           Text(
-                            " " + getTranslated(context, 'CURBAL_LBL')!,
+                            " " + getTranslated(context, 'TOTAL_EXPENSES')!,
                             style: Theme.of(context)
                                 .textTheme
                                 .subtitle2!
@@ -1051,16 +1150,16 @@ class StateWallet extends State<MyWallet> with TickerProviderStateMixin {
                                         Theme.of(context).colorScheme.fontColor,
                                     fontWeight: FontWeight.bold));
                       }),
-                      SimBtn(
-                        size: 0.8,
-                        title: getTranslated(context, "ADD_MONEY"),
-                        onBtnSelected: () {
-                          _showDialog();
-                        },
-                      ),
+                      // SimBtn(
+                      //   size: 0.8,
+                      //   title: getTranslated(context, "ADD_MONEY"),
+                      //   onBtnSelected: () {
+                      //     _showDialog();
+                      //   },
+                      // ),
                       SimBtn(
                         size: 0.9,
-                        title: "Withdraw Money",
+                        title: getTranslated(context, 'SEND_WITHDRAW_REQUEST')!,
                         onBtnSelected: (){
 
                           setState(() {
@@ -1081,7 +1180,7 @@ class StateWallet extends State<MyWallet> with TickerProviderStateMixin {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text('Enter Amount', style: TextStyle(
-                                      fontSize: 24,
+                                      fontSize: 16,
                                       fontWeight: FontWeight.w600
                                     ),),
                                     Container(
@@ -1106,340 +1205,362 @@ class StateWallet extends State<MyWallet> with TickerProviderStateMixin {
                                   ],
                                 ),
                               ),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Radio(
-                                          value: 1,
-                                          fillColor: MaterialStateColor.resolveWith((states) => colors.primary),
-                                          groupValue: _value,
-                                          onChanged: (int? value) {
-                                            setState(() {
-                                              _value = value!;
-                                              isUpi = false;
-                                            });
-                                          }),
-                                      Text(
-                                        "Bank Upi",
-                                        style: TextStyle(color: colors.primary),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Radio(
-                                          value: 2,
-                                          fillColor: MaterialStateColor.resolveWith((states) => colors.primary),
-                                          groupValue: _value,
-                                          onChanged: (int? value) {
-                                            setState(() {
-                                              _value = value!;
-                                              isUpi = true;
-                                            });
-                                          }),
-                                      Text(
-                                        "Bank Account",
-                                        style: TextStyle(color: colors.primary),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              isUpi == false
-                                  ? Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 10),
-                                    child: Text('UPI Id'),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Container(
-                                    // height: 50,
-                                    child: TextFormField(
-                                        controller: upiController,
-                                        validator: (msg) {
-                                          if (msg!.isEmpty) {
-                                            return "Please Enter UPI Id ";
-                                          }
-                                        },
-                                        decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(15)))
-                                      // decoration: InputDecoration(
-                                      //   border: OutlineInputBorder(),
-                                      // ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 25,
-                                  ),
-                                  ElevatedButton(onPressed: (){
-                                    if(amountController.text.isNotEmpty){
-                                     if(upiController.text.isNotEmpty){
-                                       sendRequest();
-                                     }else{
-                                       Fluttertoast.showToast(msg: "Please enter a valid Upi ID!");
-                                       // setSnackbar("Please enter a valid Upi ID!");
-                                     }
+                              ElevatedButton(
+                                onPressed: (){
+                                  if(amountController.text.isNotEmpty){
+                                    if(upiController.text.isNotEmpty){
+                                      sendRequest();
                                     }else{
-                                      Fluttertoast.showToast(msg: "Please enter amount first!");
+                                      Fluttertoast.showToast(msg: "Please enter a valid Upi ID!");
+                                      // setSnackbar("Please enter a valid Upi ID!");
                                     }
-                                  }, child: Text("Submit", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),), style: ElevatedButton.styleFrom(
-                                      primary: colors.primary,
-                                      fixedSize: Size(MediaQuery.of(context).size.width, 50),
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(15)
-                                      )
-                                  ),)
-                                  // AppBtn(
-                                  //   label: "Submit",
-                                  //   onPress: (){
-                                  //     if (amountController.text.isNotEmpty) {
-                                  //       if(double.parse(amountController.text.toString()) <= double.parse(wallet.toString())) {
-                                  //         if (upiController.text
-                                  //             .isNotEmpty) {
-                                  //           withdrawRequest();
-                                  //         } else {
-                                  //           Fluttertoast.showToast(
-                                  //               msg: "Please enter valid Upi ID");
-                                  //         }
-                                  //       }else{
-                                  //         Fluttertoast.showToast(
-                                  //             msg: "Withdraw amount is not more than available amount!");
-                                  //       }
-                                  //     } else {
-                                  //       Fluttertoast.showToast(
-                                  //           msg: "Please enter amount you want to withdraw!");
-                                  //     }
-                                  //
-                                  //   },
+                                  }else{
+                                    Fluttertoast.showToast(msg: "Please enter amount first!");
+                                  }
+                                }, child: Text("Submit", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),), style: ElevatedButton.styleFrom(
+                                  primary: colors.primary,
+                                  fixedSize: Size(MediaQuery.of(context).size.width, 35),
+                                  shape: StadiumBorder()
+                                  // RoundedRectangleBorder(
+                                  //     borderRadius: BorderRadius.circular(15)
                                   // )
+                              ),)
 
-                                ],
-                              )
-                                  : SizedBox.shrink(),
-                              isUpi == true
-                                  ? Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 10),
-                                    child: Text('Account Holder Name'),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Container(
-                                    // height: 50,
-                                    child: TextFormField(
-                                        controller: accountHolderController,
-                                        // validator: (msg) {
-                                        //   if (msg!.isEmpty) {
-                                        //     return "Please Enter Account Holder Name ";
-                                        //   }
-                                        // },
-                                        decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(15)))
-                                      // decoration: InputDecoration(
-                                      //   border: OutlineInputBorder(),
-                                      // ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 10),
-                                    child: Text('Account Number'),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Container(
-                                    // height: 50,
-                                    child: TextFormField(
-                                        controller: accountNoController,
-                                        keyboardType: TextInputType.number,
-                                        validator: (msg) {
-                                          if (msg!.isEmpty) {
-                                            return "Please Enter Account Number";
-                                          }
-                                        },
-                                        decoration: InputDecoration(
-                                            counterText: "",
-                                            border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(15)))
-                                      // decoration: InputDecoration(
-                                      //   border: OutlineInputBorder(),
-                                      // ),
-                                    ),
-                                  ),
-                                  // SizedBox(
-                                  //   height: 10,
-                                  // ),
-                                  // Padding(
-                                  //   padding: const EdgeInsets.only(left: 10),
-                                  //   child: Text('Confirm Account Number'),
-                                  // ),
-                                  // SizedBox(
-                                  //   height: 10,
-                                  // ),
-                                  // Container(
-                                  //   // height: 50,
-                                  //   child: TextFormField(
-                                  //       controller: confmAccountNumController,
-                                  //       keyboardType: TextInputType.number,
-                                  //       validator: (msg) {
-                                  //         if(msg != confmAccountNumController.text){
-                                  //           return "Account number and confirm account number must be same";
-                                  //         }
-                                  //       },
-                                  //       decoration: InputDecoration(
-                                  //           counterText: "",
-                                  //           border: OutlineInputBorder(
-                                  //               borderRadius: BorderRadius.circular(15)))
-                                  //     // decoration: InputDecoration(
-                                  //     //   border: OutlineInputBorder(),
-                                  //     // ),
-                                  //   ),
-                                  // ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 10),
-                                    child: Text('Bank Name'),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Container(
-                                    // height: 50,
-                                    child: TextFormField(
-                                        controller: bankNameController,
-                                        // validator: (msg) {
-                                        //   if (msg!.isEmpty) {
-                                        //     return "Please Enter Bank Name ";
-                                        //   }
-                                        // },
-                                        decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(15)))
-                                      // decoration: InputDecoration(
-                                      //   border: OutlineInputBorder(),
-                                      // ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 10),
-                                    child: Text('IFSC Code'),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Container(
-                                    // height: 50,
-                                    child: TextFormField(
-                                        controller: ifscController,
-                                        // validator: (msg) {
-                                        //   if (msg!.isEmpty) {
-                                        //     return "Please Enter IFSC Code";
-                                        //   }
-                                        // },
-                                        decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(15)))
-                                      // decoration: InputDecoration(
-                                      //   border: OutlineInputBorder(),
-                                      // ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 10),
-                                    child: Text('Account Type'),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  Padding(
-                                    padding:
-                                    const EdgeInsets.only(top: 5.0, bottom: 10),
-                                    child: Container(
-                                      height: 60,
-                                      padding: EdgeInsets.only(left: 10),
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(15),
-                                          border: Border.all(
-                                              color: Colors.black.withOpacity(0.7))),
-                                      child: DropdownButton(
-                                        // Initial Value
-                                        value: accTypeValue,
-                                        underline: Container(),
-                                        isExpanded: true,
-                                        // Down Arrow Icon
-                                        icon: Icon(Icons.keyboard_arrow_down),
-                                        hint: Text("Select Account Type"),
-                                        // Array list of items
-                                        items: accountType.map((items) {
-                                          return DropdownMenuItem(
-                                            value: items,
-                                            child: Container(
-                                                child: Text(items.toString())),
-                                          );
-                                        }).toList(),
-                                        // After selecting the desired option,it will
-                                        // change button value to selected value
-                                        onChanged: (newValue) {
-                                          setState(() {
-                                            accTypeValue = newValue!;
-                                            print(
-                                                "selected category ${accTypeValue.toString()}");
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 10,
-                                  ),
-                                  ElevatedButton(onPressed: (){
-                                    if(amountController.text.isNotEmpty){
-                                      if(accountNoController.text.isNotEmpty &&
-                                          accountHolderController.text.isNotEmpty
-                                          && bankNameController.text.isNotEmpty &&
-                                          ifscController.text.isNotEmpty){
-                                        sendRequest();
-                                      }else{
-                                        setSnackbar("Please enter a valid Upi ID!");
-                                      }
-                                    }else{
-                                      setSnackbar("Please enter a amount first");
-                                    }
-                                  }, child: Text("Submit", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),), style: ElevatedButton.styleFrom(
-                                    primary: colors.primary,
-                                    fixedSize: Size(MediaQuery.of(context).size.width, 50),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15)
-                                    )
-                                  ),)
-                                ],
-                              )
-                                  : SizedBox.shrink(),
+                              // Row(
+                              //   crossAxisAlignment: CrossAxisAlignment.center,
+                              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              //   children: [
+                              //     Row(
+                              //       mainAxisAlignment: MainAxisAlignment.center,
+                              //       children: [
+                              //         Radio(
+                              //             value: 1,
+                              //             fillColor: MaterialStateColor.resolveWith((states) => colors.primary),
+                              //             groupValue: _value,
+                              //             onChanged: (int? value) {
+                              //               setState(() {
+                              //                 _value = value!;
+                              //                 isUpi = false;
+                              //               });
+                              //             }),
+                              //         Text(
+                              //           "Bank Upi",
+                              //           style: TextStyle(color: colors.primary),
+                              //         ),
+                              //       ],
+                              //     ),
+                              //     Row(
+                              //       mainAxisAlignment: MainAxisAlignment.center,
+                              //       children: [
+                              //         Radio(
+                              //             value: 2,
+                              //             fillColor: MaterialStateColor.resolveWith((states) => colors.primary),
+                              //             groupValue: _value,
+                              //             onChanged: (int? value) {
+                              //               setState(() {
+                              //                 _value = value!;
+                              //                 isUpi = true;
+                              //               });
+                              //             }),
+                              //         Text(
+                              //           "Bank Account",
+                              //           style: TextStyle(color: colors.primary),
+                              //         ),
+                              //       ],
+                              //     ),
+                              //   ],
+                              // ),
+                              // isUpi == false
+                              //     ? Column(
+                              //   crossAxisAlignment: CrossAxisAlignment.start,
+                              //   children: [
+                              //     Padding(
+                              //       padding: const EdgeInsets.only(left: 10),
+                              //       child: Text('UPI Id'),
+                              //     ),
+                              //     SizedBox(
+                              //       height: 10,
+                              //     ),
+                              //     Container(
+                              //       // height: 50,
+                              //       child: TextFormField(
+                              //           controller: upiController,
+                              //           validator: (msg) {
+                              //             if (msg!.isEmpty) {
+                              //               return "Please Enter UPI Id ";
+                              //             }
+                              //           },
+                              //           decoration: InputDecoration(
+                              //               border: OutlineInputBorder(
+                              //                   borderRadius: BorderRadius.circular(15)))
+                              //         // decoration: InputDecoration(
+                              //         //   border: OutlineInputBorder(),
+                              //         // ),
+                              //       ),
+                              //     ),
+                              //     SizedBox(
+                              //       height: 25,
+                              //     ),
+                              //     ElevatedButton(
+                              //       onPressed: (){
+                              //       if(amountController.text.isNotEmpty){
+                              //        if(upiController.text.isNotEmpty){
+                              //          sendRequest();
+                              //        }else{
+                              //          Fluttertoast.showToast(msg: "Please enter a valid Upi ID!");
+                              //          // setSnackbar("Please enter a valid Upi ID!");
+                              //        }
+                              //       }else{
+                              //         Fluttertoast.showToast(msg: "Please enter amount first!");
+                              //       }
+                              //     }, child: Text("Submit", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),), style: ElevatedButton.styleFrom(
+                              //         primary: colors.primary,
+                              //         fixedSize: Size(MediaQuery.of(context).size.width, 50),
+                              //         shape: RoundedRectangleBorder(
+                              //             borderRadius: BorderRadius.circular(15)
+                              //         )
+                              //     ),)
+                              //     // AppBtn(
+                              //     //   label: "Submit",
+                              //     //   onPress: (){
+                              //     //     if (amountController.text.isNotEmpty) {
+                              //     //       if(double.parse(amountController.text.toString()) <= double.parse(wallet.toString())) {
+                              //     //         if (upiController.text
+                              //     //             .isNotEmpty) {
+                              //     //           withdrawRequest();
+                              //     //         } else {
+                              //     //           Fluttertoast.showToast(
+                              //     //               msg: "Please enter valid Upi ID");
+                              //     //         }
+                              //     //       }else{
+                              //     //         Fluttertoast.showToast(
+                              //     //             msg: "Withdraw amount is not more than available amount!");
+                              //     //       }
+                              //     //     } else {
+                              //     //       Fluttertoast.showToast(
+                              //     //           msg: "Please enter amount you want to withdraw!");
+                              //     //     }
+                              //     //
+                              //     //   },
+                              //     // )
+                              //
+                              //   ],
+                              // )
+                              //     : SizedBox.shrink(),
+                              // isUpi == true
+                              //     ? Column(
+                              //   crossAxisAlignment: CrossAxisAlignment.start,
+                              //   children: [
+                              //     Padding(
+                              //       padding: const EdgeInsets.only(left: 10),
+                              //       child: Text('Account Holder Name'),
+                              //     ),
+                              //     SizedBox(
+                              //       height: 10,
+                              //     ),
+                              //     Container(
+                              //       // height: 50,
+                              //       child: TextFormField(
+                              //           controller: accountHolderController,
+                              //           // validator: (msg) {
+                              //           //   if (msg!.isEmpty) {
+                              //           //     return "Please Enter Account Holder Name ";
+                              //           //   }
+                              //           // },
+                              //           decoration: InputDecoration(
+                              //               border: OutlineInputBorder(
+                              //                   borderRadius: BorderRadius.circular(15)))
+                              //         // decoration: InputDecoration(
+                              //         //   border: OutlineInputBorder(),
+                              //         // ),
+                              //       ),
+                              //     ),
+                              //     SizedBox(
+                              //       height: 10,
+                              //     ),
+                              //     Padding(
+                              //       padding: const EdgeInsets.only(left: 10),
+                              //       child: Text('Account Number'),
+                              //     ),
+                              //     SizedBox(
+                              //       height: 10,
+                              //     ),
+                              //     Container(
+                              //       // height: 50,
+                              //       child: TextFormField(
+                              //           controller: accountNoController,
+                              //           keyboardType: TextInputType.number,
+                              //           validator: (msg) {
+                              //             if (msg!.isEmpty) {
+                              //               return "Please Enter Account Number";
+                              //             }
+                              //           },
+                              //           decoration: InputDecoration(
+                              //               counterText: "",
+                              //               border: OutlineInputBorder(
+                              //                   borderRadius: BorderRadius.circular(15)))
+                              //         // decoration: InputDecoration(
+                              //         //   border: OutlineInputBorder(),
+                              //         // ),
+                              //       ),
+                              //     ),
+                              //     // SizedBox(
+                              //     //   height: 10,
+                              //     // ),
+                              //     // Padding(
+                              //     //   padding: const EdgeInsets.only(left: 10),
+                              //     //   child: Text('Confirm Account Number'),
+                              //     // ),
+                              //     // SizedBox(
+                              //     //   height: 10,
+                              //     // ),
+                              //     // Container(
+                              //     //   // height: 50,
+                              //     //   child: TextFormField(
+                              //     //       controller: confmAccountNumController,
+                              //     //       keyboardType: TextInputType.number,
+                              //     //       validator: (msg) {
+                              //     //         if(msg != confmAccountNumController.text){
+                              //     //           return "Account number and confirm account number must be same";
+                              //     //         }
+                              //     //       },
+                              //     //       decoration: InputDecoration(
+                              //     //           counterText: "",
+                              //     //           border: OutlineInputBorder(
+                              //     //               borderRadius: BorderRadius.circular(15)))
+                              //     //     // decoration: InputDecoration(
+                              //     //     //   border: OutlineInputBorder(),
+                              //     //     // ),
+                              //     //   ),
+                              //     // ),
+                              //     SizedBox(
+                              //       height: 10,
+                              //     ),
+                              //     Padding(
+                              //       padding: const EdgeInsets.only(left: 10),
+                              //       child: Text('Bank Name'),
+                              //     ),
+                              //     SizedBox(
+                              //       height: 10,
+                              //     ),
+                              //     Container(
+                              //       // height: 50,
+                              //       child: TextFormField(
+                              //           controller: bankNameController,
+                              //           // validator: (msg) {
+                              //           //   if (msg!.isEmpty) {
+                              //           //     return "Please Enter Bank Name ";
+                              //           //   }
+                              //           // },
+                              //           decoration: InputDecoration(
+                              //               border: OutlineInputBorder(
+                              //                   borderRadius: BorderRadius.circular(15)))
+                              //         // decoration: InputDecoration(
+                              //         //   border: OutlineInputBorder(),
+                              //         // ),
+                              //       ),
+                              //     ),
+                              //     SizedBox(
+                              //       height: 10,
+                              //     ),
+                              //     Padding(
+                              //       padding: const EdgeInsets.only(left: 10),
+                              //       child: Text('IFSC Code'),
+                              //     ),
+                              //     SizedBox(
+                              //       height: 10,
+                              //     ),
+                              //     Container(
+                              //       // height: 50,
+                              //       child: TextFormField(
+                              //           controller: ifscController,
+                              //           // validator: (msg) {
+                              //           //   if (msg!.isEmpty) {
+                              //           //     return "Please Enter IFSC Code";
+                              //           //   }
+                              //           // },
+                              //           decoration: InputDecoration(
+                              //               border: OutlineInputBorder(
+                              //                   borderRadius: BorderRadius.circular(15)))
+                              //         // decoration: InputDecoration(
+                              //         //   border: OutlineInputBorder(),
+                              //         // ),
+                              //       ),
+                              //     ),
+                              //     SizedBox(
+                              //       height: 10,
+                              //     ),
+                              //     Padding(
+                              //       padding: const EdgeInsets.only(left: 10),
+                              //       child: Text('Account Type'),
+                              //     ),
+                              //     SizedBox(
+                              //       height: 10,
+                              //     ),
+                              //     Padding(
+                              //       padding:
+                              //       const EdgeInsets.only(top: 5.0, bottom: 10),
+                              //       child: Container(
+                              //         height: 60,
+                              //         padding: EdgeInsets.only(left: 10),
+                              //         decoration: BoxDecoration(
+                              //             borderRadius: BorderRadius.circular(15),
+                              //             border: Border.all(
+                              //                 color: Colors.black.withOpacity(0.7))),
+                              //         child: DropdownButton(
+                              //           // Initial Value
+                              //           value: accTypeValue,
+                              //           underline: Container(),
+                              //           isExpanded: true,
+                              //           // Down Arrow Icon
+                              //           icon: Icon(Icons.keyboard_arrow_down),
+                              //           hint: Text("Select Account Type"),
+                              //           // Array list of items
+                              //           items: accountType.map((items) {
+                              //             return DropdownMenuItem(
+                              //               value: items,
+                              //               child: Container(
+                              //                   child: Text(items.toString())),
+                              //             );
+                              //           }).toList(),
+                              //           // After selecting the desired option,it will
+                              //           // change button value to selected value
+                              //           onChanged: (newValue) {
+                              //             setState(() {
+                              //               accTypeValue = newValue!;
+                              //               print(
+                              //                   "selected category ${accTypeValue.toString()}");
+                              //             });
+                              //           },
+                              //         ),
+                              //       ),
+                              //     ),
+                              //     SizedBox(
+                              //       height: 10,
+                              //     ),
+                              //     ElevatedButton(onPressed: (){
+                              //       if(amountController.text.isNotEmpty){
+                              //         if(accountNoController.text.isNotEmpty &&
+                              //             accountHolderController.text.isNotEmpty
+                              //             && bankNameController.text.isNotEmpty &&
+                              //             ifscController.text.isNotEmpty){
+                              //           sendRequest();
+                              //         }else{
+                              //           setSnackbar("Please enter a valid Upi ID!");
+                              //         }
+                              //       }else{
+                              //         setSnackbar("Please enter a amount first");
+                              //       }
+                              //     }, child: Text("Submit", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 18),), style: ElevatedButton.styleFrom(
+                              //       primary: colors.primary,
+                              //       fixedSize: Size(MediaQuery.of(context).size.width, 50),
+                              //       shape: RoundedRectangleBorder(
+                              //         borderRadius: BorderRadius.circular(15)
+                              //       )
+                              //     ),)
+                              //   ],
+                              // )
+                              //     : SizedBox.shrink(),
                             ],
                           )),
                     ],
@@ -1447,20 +1568,21 @@ class StateWallet extends State<MyWallet> with TickerProviderStateMixin {
                 ),
               ),
             ),
-            tranList.length == 0
-                ? getNoItem(context)
-                : ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: (offset < total)
-                        ? tranList.length + 1
-                        : tranList.length,
-                    physics: NeverScrollableScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      return (index == tranList.length && isLoadingmore)
-                          ? Center(child: CircularProgressIndicator())
-                          : listItem(index);
-                    },
-                  ),
+                withdrawlRequestListWidget()
+            // tranList.length == 0
+            //     ? getNoItem(context)
+            //     : ListView.builder(
+            //         shrinkWrap: true,
+            //         itemCount: (offset < total)
+            //             ? tranList.length + 1
+            //             : tranList.length,
+            //         physics: NeverScrollableScrollPhysics(),
+            //         itemBuilder: (context, index) {
+            //           return (index == tranList.length && isLoadingmore)
+            //               ? Center(child: CircularProgressIndicator())
+            //               : listItem(index);
+            //         },
+            //       ),
           ]),
         ));
   }

@@ -538,10 +538,10 @@ class StateProfile extends State<MyProfile> with TickerProviderStateMixin {
         //     : _getDrawerItem(getTranslated(context, 'MANAGE_ADD_LBL')!,
         //         'assets/images/pro_address.svg'),
         //CUR_USERID == "" || CUR_USERID == null ? Container() : _getDivider(),
-        // CUR_USERID == "" || CUR_USERID == null
-        //     ? Container()
-        //     : _getDrawerItem(getTranslated(context, 'MYWALLET')!,
-        //         'assets/images/pro_wh.svg'),
+        CUR_USERID == "" || CUR_USERID == null
+            ? Container()
+            : _getDrawerItem(getTranslated(context, 'MY_ACCOUNTS')!,
+                'assets/images/pro_wh.svg'),
         // CUR_USERID == "" || CUR_USERID == null
         //     ? Container()
         //     : _getDrawerItem(getTranslated(context, 'MYEARNINGS')!,
@@ -576,8 +576,8 @@ class StateProfile extends State<MyProfile> with TickerProviderStateMixin {
         //     : _getDrawerItem(getTranslated(context, 'REFEREARN')!,
         //         'assets/images/pro_referral.svg'),
         // CUR_USERID == "" || CUR_USERID == null ? Container() : _getDivider(),
-        _getDrawerItem(getTranslated(context, 'CUSTOMER_SUPPORT')!,
-            'assets/images/pro_customersupport.svg'),
+        // _getDrawerItem(getTranslated(context, 'CUSTOMER_SUPPORT')!,
+        //     'assets/images/pro_customersupport.svg'),
         // _getDivider(),
         // _getDrawerItem(getTranslated(context, 'ABOUT_LBL')!,
         //     'assets/images/pro_aboutus.svg'),
@@ -658,7 +658,7 @@ class StateProfile extends State<MyProfile> with TickerProviderStateMixin {
             //       builder: (context) => MyLeadsAccounts(),
             //     ));
           }
-          else if (title == getTranslated(context, 'MYWALLET')) {
+          else if (title == getTranslated(context, 'MY_ACCOUNTS')) {
             Navigator.push(
                 context,
                 MaterialPageRoute(

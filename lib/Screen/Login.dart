@@ -211,6 +211,7 @@ class _LoginPagePageState extends State<LoginPage> with TickerProviderStateMixin
 
       settingProvider.saveUserDetail(id!, username, email, mobile, city, area,
           address, pincode, latitude, longitude, image, context);
+      setPrefrenceBool(ISFIRSTTIME, false);
 
       Navigator.pushNamedAndRemoveUntil(context, "/home", (r) => false);
     }
@@ -517,39 +518,6 @@ class _LoginPagePageState extends State<LoginPage> with TickerProviderStateMixin
     );
   }
 
-  _expandedBottomView() {
-    return Expanded(
-      flex: 6,
-      child: Container(
-        alignment: Alignment.bottomCenter,
-        child: ScrollConfiguration(
-            behavior: MyBehavior(),
-            child: SingleChildScrollView(
-              child: Form(
-                key: _formkey,
-                child: Card(
-                  elevation: 0.5,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                  margin: EdgeInsetsDirectional.only(
-                      start: 20.0, end: 20.0, top: 20.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      signInTxt(),
-                      setMobileNo(),
-                      setPass(),
-                      forgetPass(),
-                      loginBtn(),
-                      termAndPolicyTxt(),
-                    ],
-                  ),
-                ),
-              ),
-            )),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -613,7 +581,7 @@ class _LoginPagePageState extends State<LoginPage> with TickerProviderStateMixin
                       setMobileNo(),
                       setPass(),
                       loginBtn(),
-                      termAndPolicyTxt(),
+                      // termAndPolicyTxt(),
                       SizedBox(
                         height: MediaQuery.of(context).size.height * 0.10,
                       ),

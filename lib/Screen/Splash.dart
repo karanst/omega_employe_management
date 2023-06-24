@@ -61,7 +61,7 @@ class _SplashScreen extends State<Splash> {
   }
 
   startTime() async {
-    var _duration = Duration(seconds: 2);
+    var _duration = Duration(seconds: 5);
     return Timer(_duration, navigationPage);
   }
 
@@ -70,15 +70,16 @@ class _SplashScreen extends State<Splash> {
         Provider.of<SettingProvider>(this.context, listen: false);
 
     bool isFirstTime = await settingsProvider.getPrefrenceBool(ISFIRSTTIME);
-    if (isFirstTime) {
-      Navigator.pushReplacementNamed(context, "/home");
-    } else {
+    print("this is my company data $CUR_USERID");
+    if (CUR_USERID == null || CUR_USERID == '') {
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => LoginPage(),
           )
       );
+    } else {
+      Navigator.pushReplacementNamed(context, "/home");
     }
   }
 

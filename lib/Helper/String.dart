@@ -22,14 +22,17 @@ final Uri verifyOtpApi = Uri.parse(baseUrl + 'verify_otp');
 final Uri referFormApi = Uri.parse(baseUrl + 'referral_form');
 final Uri referralListApi = Uri.parse(baseUrl + 'refferal_list');
 final Uri withdrawRequestApi = Uri.parse(baseUrl + 'withdrawl_request');
+final Uri withdrawlRequestsListApi = Uri.parse(baseUrl + 'get_withdrawl_request');
 final Uri transactionsListApi = Uri.parse(baseUrl + 'transactions');
 final Uri requestTrainingApi = Uri.parse(baseUrl + 'tranning_request');
 final Uri referralCommissionApi = Uri.parse(baseUrl + 'user_commission');
 final Uri addExpenseApi = Uri.parse(baseUrl + 'addspent');
 final Uri getUserExpensesApi = Uri.parse(baseUrl + 'get_user_spent');
+final Uri perDayExpensesApi = Uri.parse(baseUrl + 'get_user_perday_spent');
 final Uri getUserCheckStatusApi = Uri.parse(baseUrl + 'get_user_status');
 final Uri checkInNowApi = Uri.parse(baseUrl + 'checkinNow');
 final Uri checkOutNowApi = Uri.parse(baseUrl + 'checkoutNow');
+
 ///NEW APIS////////////
 
 final Uri setFavoriteApi = Uri.parse(baseUrl + 'add_to_favorites');
