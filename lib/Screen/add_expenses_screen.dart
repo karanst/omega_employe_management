@@ -1,4 +1,3 @@
-
 import 'dart:convert';
 import 'dart:io';
 
@@ -11,6 +10,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker_gallery_camera/image_picker_gallery_camera.dart';
 import 'package:omega_employee_management/Helper/Session.dart';
+import 'package:omega_employee_management/Model/new_category_model.dart';
 import '../Helper/Color.dart';
 import '../Helper/String.dart';
 import '../Model/Section_Model.dart';
@@ -18,7 +18,7 @@ import 'package:http/http.dart' as http;
 
 class AddExpenseScreen extends StatefulWidget {
   final Product? data;
-   AddExpenseScreen({Key? key, this.data}) : super(key: key);
+  AddExpenseScreen({Key? key, this.data}) : super(key: key);
 
   @override
   State<AddExpenseScreen> createState() => _AddExpenseScreenState();
@@ -26,18 +26,48 @@ class AddExpenseScreen extends StatefulWidget {
 
 class _AddExpenseScreenState extends State<AddExpenseScreen> {
   TextEditingController amountcontroller = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+  TextEditingController fromController = TextEditingController();
+  TextEditingController toController = TextEditingController();
+
+
   File? image;
   String? latitude;
-  String? longitude ;
+  String? longitude;
   var pinController = TextEditingController();
   var currentAddress = TextEditingController();
 
+  List<Data> subcategory = [];
+  var subCategoryValue;
 
+  getSubCategory() async {
+    var headers = {
+      'Cookie': 'ci_session=5b275056e99daf066cd95d54b384b2ccd46f50b1'
+    };
+    var request =
+        http.MultipartRequest('POST', Uri.parse('${getCatApi.toString()}'));
+    request.fields.addAll({'id': '${widget.data!.id.toString()}'});
+    print("res ${request.fields}");
+    request.headers.addAll(headers);
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 200) {
+      var finalResponse = await response.stream.bytesToString();
+      final jsonResponse = json.decode(finalResponse);
+      print("json response here  ${jsonResponse} and ${jsonResponse}");
+      subcategory = NewCategoryModel.fromJson(jsonResponse).data!;
+      // setState(() {
+      //   subCategoryModel = jsonResponse['data'];
+      // });
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
 
   ///MULTI IMAGE PICKER FROM GALLERY CAMERA
   ///
   ///
   ///
+
   List imagePathList = [];
   bool isImages = false;
   Future<void> getFromGallery() async {
@@ -59,6 +89,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       // User canceled the picker
     }
   }
+
   Widget uploadMultiImage() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -79,39 +110,35 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                     color: colors.primary),
                 child: Center(
                     child: Text(
-                      "Upload Pictures",
-                      style: TextStyle(color: colors.whiteTemp),
-                    )))),
+                  "Upload Pictures",
+                  style: TextStyle(color: colors.whiteTemp),
+                )))),
         const SizedBox(
-
-
           height: 10,
         ),
         Visibility(
             visible: isImages,
-            child: imagePathList != null ? buildGridView() : SizedBox.shrink()
-        )
-
+            child: imagePathList != null ? buildGridView() : SizedBox.shrink())
       ],
     );
   }
+
   Widget buildGridView() {
     return Container(
       height: 165,
       child: GridView.builder(
         itemCount: imagePathList.length,
         gridDelegate:
-        SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+            SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
         itemBuilder: (BuildContext context, int index) {
           return Stack(
             children: [
               Card(
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(15))
-                  ),
+                      borderRadius: BorderRadius.all(Radius.circular(15))),
                   child: Container(
-                    width: MediaQuery.of(context).size.width/2,
-                    height: MediaQuery.of(context).size.height/2,
+                    width: MediaQuery.of(context).size.width / 2,
+                    height: MediaQuery.of(context).size.height / 2,
                     child: ClipRRect(
                       borderRadius: BorderRadius.all(Radius.circular(15)),
                       child: Image.file(File(imagePathList[index]),
@@ -122,16 +149,16 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                 top: 5,
                 right: 10,
                 child: InkWell(
-                  onTap: (){
-                    setState((){
+                  onTap: () {
+                    setState(() {
                       imagePathList.remove(imagePathList[index]);
                     });
-
                   },
                   child: Icon(
                     Icons.remove_circle,
                     size: 30,
-                    color: Colors.red.withOpacity(0.7),),
+                    color: Colors.red.withOpacity(0.7),
+                  ),
                 ),
               )
             ],
@@ -140,7 +167,8 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
       ),
     );
   }
-  void pickImageDialog(BuildContext context,int i) async{
+
+  void pickImageDialog(BuildContext context, int i) async {
     return await showDialog<void>(
       context: context,
       // barrierDismissible: barrierDismissible, // user must tap button!
@@ -156,9 +184,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                 onTap: () async {
                   getFromGallery();
                 },
-                child:  Container(
+                child: Container(
                   child: ListTile(
-                      title:  Text("Gallery"),
+                      title: Text("Gallery"),
                       leading: Icon(
                         Icons.image,
                         color: colors.primary,
@@ -176,7 +204,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
                 },
                 child: Container(
                   child: ListTile(
-                      title:  Text("Camera"),
+                      title: Text("Camera"),
                       leading: Icon(
                         Icons.camera,
                         color: colors.primary,
@@ -188,10 +216,9 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
         );
       },
     );
-
   }
-  Future getImage(ImgSource source, BuildContext context, int i) async {
 
+  Future getImage(ImgSource source, BuildContext context, int i) async {
     var image = await ImagePickerGC.pickImage(
       context: context,
       source: source,
@@ -203,6 +230,7 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     getCropImage(context, i, image);
     // back();
   }
+
   void getCropImage(BuildContext context, int i, var image) async {
     CroppedFile? croppedFile = await ImageCropper.platform.cropImage(
       sourcePath: image.path,
@@ -230,154 +258,266 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     // update();
     back();
   }
+
   ///MULTI IMAGE PICKER FROM GALLERY CAMERA
   ///
   ///
 
-@override
+  @override
   void initState() {
-  getCurrentLoc();
-  print("lat longgggg ${longitude_Global} ${lattitudee_Global} ");
-print(currentlocation_Global);
-
-    // TODO: implement initState
+    getCurrentLoc();
+    print("lat longgggg ${longitude_Global} ${lattitudee_Global} ");
+    print(currentlocation_Global);
     super.initState();
+    getSubCategory();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(onPressed: (){
-          Navigator.pop(context);
-        }, icon: Icon(Icons.arrow_back_ios, color: colors.primary,)),
+        leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(
+              Icons.arrow_back_ios,
+              color: colors.primary,
+            )),
         backgroundColor: colors.whiteTemp,
         centerTitle: true,
-        title: Text(widget.data!.name.toString() ?? "Refer Form", style: TextStyle(
-            color: colors.primary
-        ),),
+        title: Text(
+          widget.data!.name.toString() ?? "Refer Form",
+          style: TextStyle(color: colors.primary),
+        ),
       ),
-
       body: Padding(
-
-
-        padding: const EdgeInsets.only(left: 15,right: 15),
-        child: Column(children: [
-
-          SizedBox(height: 30,),
-
-          // Card(
-          //     elevation: 5,
-          //     shape: RoundedRectangleBorder(
-          //       borderRadius: BorderRadius.circular(15),
-          //     ),
-          //     child:
-          //   InkWell(
-          //     onTap: (){
-          //       // gallery();
-          //     },
-          //     child: Container(height: MediaQuery.of(context).size.height/7,
-          //     width: MediaQuery.of(context).size.width/3.5,
-          //       decoration: BoxDecoration(
-          //           borderRadius: BorderRadius.circular(15),
-          //           image: DecorationImage(image: AssetImage('assets/images/imagepic.jpg'),fit: BoxFit.fill)),
-          //     ),
-          //   )
-          // ),
-          // Text('Select Image'),
+        padding: const EdgeInsets.only(left: 15, right: 15),
+        child: Column(
+            children: [
+          SizedBox(
+            height: 30,
+          ),
 
           Padding(
-            padding: const EdgeInsets.only(top: 30, bottom: 10),
+              padding: const EdgeInsets.only(top: 20, bottom: 10),
+              child: Container(
+                  padding: EdgeInsets.only(left: 8),
+                  height: 50,
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                          color: Theme.of(context).colorScheme.fontColor)),
+                  child:  subcategory.isNotEmpty?
+                  DropdownButton(
+                    underline: Container(),
+                    value: subCategoryValue,
+                     hint:Text("Select Category"),
+                    isExpanded: true,
+                    icon: Container(
+                        alignment: Alignment.centerRight,
+                        width: MediaQuery.of(context).size.width / 2.7,
+                        child: Icon(Icons.keyboard_arrow_down)),
+
+                    items: subcategory[0].children!.map((items) {
+                      return DropdownMenuItem(
+                        value: items.id,
+                        child: Text(items.name!),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        subCategoryValue = newValue! as String?;
+                      });
+                    },
+                  )
+                      : Center(
+                        child: Container(
+                    width: 30,
+                        height: 30,
+                        child: CircularProgressIndicator(color: colors.primary,)),
+                      )
+              )),
+        widget.data!.name.toString() == 'Travel'?
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 10, bottom: 10),
+                child: Container(
+                  padding: EdgeInsets.all(8),
+                  height: 50,
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                          color: Theme.of(context).colorScheme.fontColor)),
+                  width: MediaQuery.of(context).size.width,
+                  child: TextFormField(
+                    maxLines: 1,
+                    style:
+                    TextStyle(color: Theme.of(context).colorScheme.fontColor),
+                    keyboardType: TextInputType.name,
+                    // maxLength: 10,
+                    controller: fromController,
+                    decoration: InputDecoration(
+                        counterText: '',
+                        border: InputBorder.none,
+                        hintText: "From"),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only( bottom: 10),
+                child: Container(
+                  padding: EdgeInsets.all(8),
+                  height: 50,
+                  decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                          color: Theme.of(context).colorScheme.fontColor)),
+                  width: MediaQuery.of(context).size.width,
+                  child: TextFormField(
+                    maxLines: 1,
+                    style:
+                    TextStyle(color: Theme.of(context).colorScheme.fontColor),
+                    keyboardType: TextInputType.name,
+                    // maxLength: 10,
+                    controller: toController,
+                    decoration: InputDecoration(
+                        counterText: '',
+                        border: InputBorder.none,
+                        hintText: "To"),
+                  ),
+                ),
+              ),
+            ],
+          )
+        : SizedBox.shrink(),
+          Padding(
+            padding: const EdgeInsets.only(top: 10, bottom: 10),
             child: Container(
-              padding: EdgeInsets.all(8),
+              padding: EdgeInsets.only(left: 8),
               height: 50,
               decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Theme.of(context).colorScheme.fontColor)
-              ),
+                  border: Border.all(
+                      color: Theme.of(context).colorScheme.fontColor)),
               width: MediaQuery.of(context).size.width,
               child: TextFormField(
-                style: TextStyle(color: Theme.of(context).colorScheme.fontColor),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.fontColor),
                 keyboardType: TextInputType.number,
                 maxLength: 10,
                 controller: amountcontroller,
                 decoration: InputDecoration(
                     counterText: '',
                     border: InputBorder.none,
-                    hintText: "Enter Amount"
-                ),
+                    hintText: "Enter Amount"),
+              ),
+            ),
+          ),
+
+
+          Padding(
+            padding: const EdgeInsets.only(top: 10, bottom: 10),
+            child: Container(
+              padding: EdgeInsets.all(8),
+              height: 80,
+              decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                      color: Theme.of(context).colorScheme.fontColor)),
+              width: MediaQuery.of(context).size.width,
+              child: TextFormField(
+                maxLines: 3,
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.fontColor),
+                keyboardType: TextInputType.name,
+                // maxLength: 10,
+                controller: descriptionController,
+                decoration: InputDecoration(
+                    counterText: '',
+                    border: InputBorder.none,
+                    hintText: "Description"),
               ),
             ),
           ),
           uploadMultiImage(),
-
           Padding(
             padding: const EdgeInsets.only(top: 20.0, bottom: 30),
             child: ElevatedButton(
-                onPressed: (){
-              if(amountcontroller.text.isNotEmpty) {
-                addExpenses();
-              }else{
-                setSnackbar("Please enter amount you had spent!", context);
-              }
-            },
+                onPressed: () {
+                  if (amountcontroller.text.isNotEmpty) {
+                    addExpenses();
+                  } else {
+                    setSnackbar("Please enter amount you had spent!", context);
+                  }
+                },
                 style: ElevatedButton.styleFrom(
                     primary: colors.primary,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
                     ),
-                    fixedSize: Size(MediaQuery.of(context).size.width - 40, 50)
-                ),
-                child: Text("Add Expense", style: TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.w600
-                ),)),
+                    fixedSize:
+                        Size(MediaQuery.of(context).size.width - 40, 50)),
+                child: Text(
+                  "Add Expense",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                )),
           )
         ]),
       ),
     );
   }
 
-  Future<void> addExpenses()
-  async {
+  Future<void> addExpenses() async {
     print("this is working here!");
     var headers = {
       'Cookie': 'ci_session=4930e9ab363057c3e0ca5f3657fe6829f8d4c709'
     };
-    var request = http.MultipartRequest('POST', Uri.parse(addExpenseApi.toString()));
+    var request =
+        http.MultipartRequest('POST', Uri.parse(addExpenseApi.toString()));
     request.fields.addAll({
-      'latitude':latitude.toString(),
+      'latitude': latitude.toString(),
       'longitude': longitude.toString(),
       'address': currentAddress.text.toString(),
       'user_id': CUR_USERID.toString(),
-      'spent_type':widget.data!.name.toString(),
-      'amount': amountcontroller.text,
+      'spent_type': widget.data!.id.toString(),
+      'sub_spent_type': subCategoryValue.toString(),
+      'amount': amountcontroller.text.toString(),
+      'description': descriptionController.text.toString(),
+      'from': fromController.text.toString(),
+      'to': toController.text.toString()
     });
     for (var i = 0; i < imagePathList.length; i++) {
       imagePathList == null
           ? null
           : request.files.add(await http.MultipartFile.fromPath(
-          'images[]', imagePathList[i].toString()));
+              'images[]', imagePathList[i].toString()));
     }
-    print("this is my add expense request ${request.fields.toString()} and ${request.files.toString()}");
+    print(
+        "this is my add expense request ${request.fields.toString()} and ${request.files.toString()}");
 
     // request.files.add(await http.MultipartFile.fromPath('images[]', ));
-  request.headers.addAll(headers);
+    request.headers.addAll(headers);
 
     http.StreamedResponse response = await request.send();
 
-  if (response.statusCode == 200) {
-    String responseData =
-    await response.stream.transform(utf8.decoder).join();
-    var userData = json.decode(responseData);
-    Fluttertoast.showToast(msg: userData['data']);
-    Navigator.pop(context);
-  print(await response.stream.bytesToString());
-  }
-    else {
-  print(response.reasonPhrase);
-  }
-
+    if (response.statusCode == 200) {
+      String responseData =
+          await response.stream.transform(utf8.decoder).join();
+      var userData = json.decode(responseData);
+      Fluttertoast.showToast(msg: userData['data']);
+      Navigator.pop(context);
+      print(await response.stream.bytesToString());
+    } else {
+      print(response.reasonPhrase);
+    }
   }
 
   // Future<void> gallery() async {
@@ -423,7 +563,6 @@ print(currentlocation_Global);
   //   }
   // }
 
-
   Future<void> getCurrentLoc() async {
     LocationPermission permission;
     permission = await Geolocator.checkPermission();
@@ -441,8 +580,8 @@ print(currentlocation_Global);
     latitude = position.latitude.toString();
     longitude = position.longitude.toString();
     setState(() {
-      longitude_Global=latitude;
-      lattitudee_Global=longitude;
+      longitude_Global = latitude;
+      lattitudee_Global = longitude;
     });
 
     List<Placemark> placemark = await placemarkFromCoordinates(
@@ -454,22 +593,19 @@ print(currentlocation_Global);
       setState(() {
         pinController.text = placemark[0].postalCode!;
         currentAddress.text =
-        "${placemark[0].street}, ${placemark[0].subLocality}, ${placemark[0].locality}";
+            "${placemark[0].street}, ${placemark[0].subLocality}, ${placemark[0].locality}";
         latitude = position.latitude.toString();
         longitude = position.longitude.toString();
         // loc.lng = position.longitude.toString();
         //loc.lat = position.latitude.toString();
         setState(() {
-          currentlocation_Global=currentAddress.text.toString();
+          currentlocation_Global = currentAddress.text.toString();
         });
         print('Latitude=============${latitude}');
         print('Longitude*************${longitude}');
 
         print('Current Addresssssss${currentAddress.text}');
       });
-
     }
   }
-
-
 }

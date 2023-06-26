@@ -19,13 +19,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart';
-import 'package:provider/provider.dart';
-import 'All_Category.dart';
-import 'Cart.dart';
 import 'HomePage.dart';
-import 'NotificationLIst.dart';
-import 'Sale.dart';
-import 'Search.dart';
+
 
 class Dashboard extends StatefulWidget {
   final int? selectedIndex;

@@ -931,7 +931,9 @@ class StateProfile extends State<MyProfile> with TickerProviderStateMixin {
                       color: Theme.of(context).colorScheme.fontColor,
                       fontWeight: FontWeight.bold),
                 ),
-                onPressed: () {
+                onPressed: () async {
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  prefs.setString('user_id', '');
                   SettingProvider settingProvider =
                       Provider.of<SettingProvider>(context, listen: false);
                   settingProvider.clearUserSession(context);

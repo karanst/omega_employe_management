@@ -1,4 +1,4 @@
-final String appName = 'omega_employee_management';
+final String appName = 'Omega Technologies';
 
 final String packageName = 'com.aimbiz.referral';
 final String androidLink = 'https://play.google.com/store/apps/details?id=';

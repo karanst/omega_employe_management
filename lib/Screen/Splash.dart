@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:omega_employee_management/Screen/Login.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Helper/Color.dart';
 import '../Helper/Session.dart';
@@ -28,7 +29,7 @@ class _SplashScreen extends State<Splash> {
       statusBarIconBrightness: Brightness.light,
     ));
     super.initState();
-    startTime();
+    checkingLogin();
   }
 
   @override
@@ -65,13 +66,36 @@ class _SplashScreen extends State<Splash> {
     return Timer(_duration, navigationPage);
   }
 
+  String? uid;
+
+  void checkingLogin() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+     uid = prefs.getString('user_id');
+
+    });
+    if(uid == null || uid == ""){
+      Future.delayed(Duration(
+          seconds: 3
+      ), (){
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> LoginPage()));
+      });
+    }else{
+      Future.delayed(Duration(
+          seconds: 3
+      ), (){
+        Navigator.pushReplacementNamed(context, "/home");
+      });
+    }
+  }
+
   Future<void> navigationPage() async {
+
     SettingProvider settingsProvider =
         Provider.of<SettingProvider>(this.context, listen: false);
-
     bool isFirstTime = await settingsProvider.getPrefrenceBool(ISFIRSTTIME);
-    print("this is my company data $CUR_USERID");
-    if (CUR_USERID == null || CUR_USERID == '') {
+    print("this is my $CUR_USERID and $isFirstTime");
+    if (isFirstTime) {
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(

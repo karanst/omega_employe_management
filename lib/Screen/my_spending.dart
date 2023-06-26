@@ -27,7 +27,7 @@ class _UserExpensesScreenState extends State<UserExpensesScreen> {
 
 
 
-  List<UserExpeses> userExpenses = [];
+  List<UserExpenses> userExpenses = [];
   List<PerDayCharges> perDayExpenses = [];
   bool isSelected = true;
 
@@ -298,7 +298,7 @@ Widget allExpenses(){
                       const SizedBox(width: 25,),
                       Container(
                         padding: EdgeInsets.only(right: 10, top: 10, left: 10),
-                        height: 220,
+                        height: 242,
                         width: 100,
                         //MediaQuery.of(context).size.height,
                         decoration: BoxDecoration(
@@ -312,12 +312,39 @@ Widget allExpenses(){
                             Text(DateFormat('dd MMM yyyy').format(DateTime.parse(userExpenses[index].createAt.toString())).toString(),
                                 style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600,  color: colors.whiteTemp) ),
                             Padding(
-                              padding: const EdgeInsets.only(top: 10.0, bottom: 10),
-                              child: Text(' ${userExpenses[index].spentType.toString()}',
-                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600,  color: colors.whiteTemp) ),
+                              padding: const EdgeInsets.only(top: 7, bottom: 7),
+                              child: Text(' ${userExpenses[index].st.toString()}',
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600,  color: colors.whiteTemp) ),
                             ),
-                            Text('₹ ${userExpenses[index].amount.toString()}',
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600,  color: colors.whiteTemp) ),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 7.0),
+                              child: Text('${userExpenses[index].sst.toString()}',
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600,  color: colors.whiteTemp) ),
+                            ),
+                            userExpenses[index].st.toString() == 'Travel' ?
+                            Column(
+                              children: [
+                                userExpenses[index].from.toString() == 'null' ?
+                                    SizedBox.shrink()
+                                : Padding(
+                                  padding: const EdgeInsets.only( bottom: 7),
+                                  child: Text(
+                                      '${userExpenses[index].from.toString()}' ?? '',
+                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600,  color: colors.whiteTemp) ),
+                                ),
+                                userExpenses[index].to.toString() == 'null' ?
+                                SizedBox.shrink() :
+                                Text('${userExpenses[index].to.toString()}' ?? '',
+                                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600,  color: colors.whiteTemp) ),
+                              ],
+                            )
+                            : SizedBox.shrink(),
+
+                            Padding(
+                              padding: const EdgeInsets.only(top: 7),
+                              child: Text('₹ ${userExpenses[index].amount.toString()}',
+                                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600,  color: colors.whiteTemp) ),
+                            ),
                             Spacer(),
                             Padding(
                               padding: const EdgeInsets.only(bottom: 8.0),

@@ -14,6 +14,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Helper/AppBtn.dart';
 import '../Helper/Color.dart';
@@ -172,6 +173,7 @@ class _LoginPagePageState extends State<LoginPage> with TickerProviderStateMixin
   }
 
   Future<void> getLoginUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     var data = {MOBILE: mobile, PASSWORD: password};
 
     Response response =
@@ -198,6 +200,7 @@ class _LoginPagePageState extends State<LoginPage> with TickerProviderStateMixin
       image = i[IMAGE];
 
       CUR_USERID = id;
+      prefs.setString('user_id', id!);
       // CUR_USERNAME = username;
 
       UserProvider userProvider =
@@ -212,6 +215,7 @@ class _LoginPagePageState extends State<LoginPage> with TickerProviderStateMixin
       settingProvider.saveUserDetail(id!, username, email, mobile, city, area,
           address, pincode, latitude, longitude, image, context);
       setPrefrenceBool(ISFIRSTTIME, false);
+
 
       Navigator.pushNamedAndRemoveUntil(context, "/home", (r) => false);
     }

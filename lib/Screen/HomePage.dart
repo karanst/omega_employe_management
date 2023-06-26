@@ -354,7 +354,8 @@ class _HomePageState extends State<HomePage>
                     fontWeight: FontWeight.w600
                 ),),
               ),
-              _catList()
+              _catList(),
+                const SizedBox(height: 25,),
                 // Container(
                 //   margin: EdgeInsets.all(12),
                 //   child:  StaggeredGridView.countBuilder(
